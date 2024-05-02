@@ -1,0 +1,17 @@
+.bg-main-color{
+    background-color: #486c44 !important;
+}
+
+
+
+.boton-flotante {
+    position: fixed;
+    bottom: 50px;  /* Ajusta según sea necesario */
+    right: 50px;   /* Ajusta según sea necesario */
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
