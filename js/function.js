@@ -1,37 +1,4 @@
-function sendEmail() {
-    mailto = "mailto:?bcc=" + destination + "&subject=" + subject + "&body=" + body;
 
-    Swal.fire({
-        title: 'Send Email? (This action can not be undone)',
-        text: 'Subject: ' + subject + '\n Body: ' + body,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Send Email',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Si el usuario confirma, ejecuta otra función
-            $.ajax({
-                url: 'http://10.2.3.100:3000/enviar-correo?to=' + destination + '&subject=' + subject + '&body=' + body, // Ruta a tu servidor Node.js
-                method: 'GET',
-                success: function (response) {
-                    console.log('Correo enviado:', response);
-                    console.log('Correo electrónico enviado correctamente');
-                    Swal.fire({
-                        title: 'Sucess',
-                        text: 'The email has ben sent.',
-                        icon: 'success'
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error al enviar el correo electrónico:', error);
-                    console.log('Error al enviar el correo electrónico');
-                }
-            });
-        }
-    });
-
-}
 
 function processCSVFile() {
     // Obtain entry elements inside te file
@@ -67,10 +34,22 @@ function processCSVFile() {
                 // Iterar sobre las filas y acceder a los valores de cada columna
 
                 var seleccionado = $('input[name="ownerResident"]:checked').attr('id');
-        
-        
+
+                var contadorIteraciones = 0;
+
+                //mailingLabels+=`<div class="container">`
+
                 $.each(data, function (index, fila) {
                     if (index % 2 === 0) { // Si el índice es par
+
+                        contadorIteraciones++;
+
+                        if (contadorIteraciones % 10 === 1) {
+                            // Mensaje de consola cuando comienza cada ciclo de 10 iteraciones
+                            mailingLabels += `
+                                <center><div class="container">
+                                    <div style="text-align: justify;">`;
+                        }
 
                         // Realizar alguna acción basada en el botón seleccionado
                         switch (seleccionado) {
@@ -80,7 +59,7 @@ function processCSVFile() {
                                         ${fila["TRUE_OWNER1"]}</br>
                                         ${fila["TRUE_MAILING_ADDR1"]}</br>
                                         ${fila["TRUE_MAILING_CITY"]}, ${fila["TRUE_MAILING_STATE"]} ${fila["TRUE_MAILING_ZIP_CODE"]}</BR>                       
-                                    </div></br>`;
+                                    </div>`;
 
                                 var siguienteIndex = index + 1;
                                 if (siguienteIndex < data.length) {
@@ -95,19 +74,19 @@ function processCSVFile() {
                                 // Realizar acciones específicas para "Owners"
                                 break;
                             case 'resident':
-                                
+
                                 mailingLabels += `
                                     <div class="column">
                                         RESIDENT</br>
                                         ${fila["TRUE_SITE_ADDR"]}</br>
                                         ${fila["TRUE_SITE_CITY"]}, FL ${fila["TRUE_SITE_ZIP_CODE"]}</BR>                    
-                                    </div></br>`;
+                                    </div>`;
 
                                 var siguienteIndex = index + 1;
                                 if (siguienteIndex < data.length) {
                                     var siguienteItem = data[siguienteIndex];
                                     mailingLabels += `
-                                        <div class="column">
+                                        <div class="column" style="padding-left:15px;">
                                             RESIDENT</br>
                                             ${siguienteItem["TRUE_SITE_ADDR"]}</br>
                                             ${siguienteItem["TRUE_SITE_CITY"]},FL ${siguienteItem["TRUE_SITE_ZIP_CODE"]}</br>                        
@@ -117,13 +96,13 @@ function processCSVFile() {
                                 // Realizar acciones específicas para "Residents"
                                 break;
                             case 'both':
-                                
-                                mailingLabels += `
+
+                                mailingLabels += `                                
                                     <div class="column">
                                         ${fila["TRUE_OWNER1"]}</br>
                                         ${fila["TRUE_MAILING_ADDR1"]}</br>
                                         ${fila["TRUE_MAILING_CITY"]}, ${fila["TRUE_MAILING_STATE"]} ${fila["TRUE_MAILING_ZIP_CODE"]}</BR>                       
-                                    </div></br>`;
+                                    </div>`;
 
                                 var siguienteIndex = index + 1;
                                 if (siguienteIndex < data.length) {
@@ -141,7 +120,7 @@ function processCSVFile() {
                                         RESIDENT</br>
                                         ${fila["TRUE_SITE_ADDR"]}</br>
                                         ${fila["TRUE_SITE_CITY"]}, FL ${fila["TRUE_SITE_ZIP_CODE"]}</BR>                    
-                                    </div></br>`;
+                                    </div>`;
 
                                     var siguienteIndex = index + 1;
                                     if (siguienteIndex < data.length) {
@@ -156,7 +135,14 @@ function processCSVFile() {
                                 }
                                 // Realizar acciones específicas para "Residents and Owner"
                                 break;
-                        }                      
+                        }
+
+                        if (contadorIteraciones % 10 === 0) {
+                            mailingLabels += `
+                                    </div>
+                                    <div class="clear"></div>
+                                </div></center>`;
+                        }
 
 
                     }
@@ -178,14 +164,13 @@ function processCSVFile() {
                                 size: letter;
                             }
                             .container {
-                                width: 8.5in; /* Ancho total de la página */
-                                margin: 0 auto; /* Centra la página horizontalmente */
-                                padding: 20px;
+                                width: 8.5in; /* Ancho total de la página */                                
                             }
                             .column {
                                 width: 4in; /* Ancho de cada columna */
                                 float: left;
                                 padding: 10px;
+                                margin-top:30px;
                             }
                             .clear {
                                 clear: both; /* Limpia el float */
@@ -226,7 +211,7 @@ function processCSVFile() {
                             /* Establecer márgenes y saltos de página */
                             @page {
                                 size: letter; /* Tamaño de la página */
-                                margin: 1in; /* Márgenes de la página */
+                                margin: 0.5in; /* Márgenes de la página */
                                 padding: 0;
                             }
                             .container {
@@ -238,7 +223,7 @@ function processCSVFile() {
                         <center><h1>Mailing List Labels</h1></center></br>
                         <center><strong>${$('#description').val()}</strong></center></br>
                         <center><strong>${$('#department').val()}</strong></center></br>
-                        <center><strong>${((seleccionado=='owner')?'Addressed to Owner':'Addressed to Residents')}</strong></center></br>
+                        <center><strong>${((seleccionado == 'owner') ? 'Addressed to Owner' : 'Addressed to Residents')}</strong></center></br>
                         <center><div class="container">
                             <div style="text-align: justify;">${mailingLabels}</div>
                             <div class="clear"></div>
